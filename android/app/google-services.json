@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "959828179855",
+    "project_id": "flutter-getx-auth-ac404",
+    "storage_bucket": "flutter-getx-auth-ac404.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:959828179855:android:9e39c03edeb511ad4269fa",
+        "android_client_info": {
+          "package_name": "com.example.flutter_getx_test"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyzRKm-KEIPq6H4N-Qy2JLgtqQz4RgzDo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
