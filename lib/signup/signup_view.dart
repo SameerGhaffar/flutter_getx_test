@@ -1,13 +1,7 @@
-import 'dart:io';
-
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_getx_test/functions/funtions.dart';
-import 'package:flutter_getx_test/home/home_view.dart';
-import 'package:flutter_getx_test/login/login_view.dart';
-import 'package:flutter_getx_test/services/auth_service.dart';
-import 'package:flutter_getx_test/services/storage_service.dart';
+import 'package:flutter_getx_test/signup/signup_view_model.dart';
+import 'package:get/get.dart';
 
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
@@ -17,14 +11,7 @@ class SignupView extends StatefulWidget {
 }
 
 class _SignupViewState extends State<SignupView> {
-  final defaultProfilePicFile = File('assets/profile.jpg');
-  bool isObscure = true;
-  File? selectedImage;
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  AuthService authService = AuthService();
-  StorageService storageService = StorageService();
+  final SignupViewModel viewModel = Get.put(SignupViewModel());
 
   @override
   Widget build(BuildContext context) {
@@ -38,48 +25,48 @@ class _SignupViewState extends State<SignupView> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10),
           child: Form(
-            key: formKey,
+            key: viewModel.formKey,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 InkWell(
-                  onTap: () => onImageClick(),
+                  onTap: () => viewModel.onImageClick(),
                   child: CircleAvatar(
                     backgroundColor: Colors.blue.withOpacity(0.3),
                     maxRadius: 90,
                     minRadius: 80,
-                    child: selectedImage != null
+                    child: viewModel.selectedImage != null
                         ? ClipRRect(
-                      borderRadius: BorderRadius.circular(90),
-                      child: Image.file(
-                        selectedImage!,
-                        fit: BoxFit.cover,
-                      ),
-                    )
+                            borderRadius: BorderRadius.circular(90),
+                            child: Image.file(
+                              viewModel.selectedImage!,
+                              fit: BoxFit.cover,
+                            ),
+                          )
                         : const Icon(
-                      Icons.person,
-                      size: 100,
-                    ),
+                            Icons.person,
+                            size: 100,
+                          ),
                   ),
                 ),
                 const SizedBox(height: 10),
                 myTextField(
-                  emailController,
+                  viewModel.emailController,
                   "Email",
                   "Enter Email",
-                  validator: (v) => emailValidator(v),
+                  validator: (v) => viewModel.emailValidator(v),
                 ),
                 myTextField(
-                  passwordController,
+                  viewModel.passwordController,
                   "Password",
                   "Password Controller",
-                  validator: (v) => passwordValidator(v),
+                  validator: (v) => viewModel.passwordValidator(v),
                   isPassword: true,
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 5),
                   child: ElevatedButton(
-                    onPressed: () => onSignUpTap(),
+                    onPressed: () => viewModel.onSignUpTap(),
                     child: const Text('SignUp'),
                   ),
                 ),
@@ -98,11 +85,7 @@ class _SignupViewState extends State<SignupView> {
                                 fontWeight: FontWeight.bold),
                             recognizer: TapGestureRecognizer()
                               ..onTap = () {
-                                Navigator.of(context).pushAndRemoveUntil(
-                                    MaterialPageRoute(
-                                      builder: (context) => const LoginView(),
-                                    ),
-                                        (route) => false);
+                                Get.back();
                               }),
                       ],
                     ),
@@ -111,7 +94,7 @@ class _SignupViewState extends State<SignupView> {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: InkWell(
-                    onTap: () => onGoogleTap(),
+                    onTap: () => viewModel.onGoogleTap(),
                     child: Card(
                       elevation: 4,
                       child: Container(
@@ -158,20 +141,20 @@ class _SignupViewState extends State<SignupView> {
         validator: validator,
         keyboardType: isPassword ? TextInputType.emailAddress : null,
         controller: controller,
-        obscureText: isPassword ? isObscure : false,
+        obscureText: isPassword ? viewModel.isObscure.value : false,
         decoration: InputDecoration(
           suffixIcon: isPassword
               ? GestureDetector(
-              onTap: () => onEyeTap(),
-              child: isObscure
-                  ? const Icon(
-                Icons.visibility_off,
-                color: Colors.black,
-              )
-                  : const Icon(
-                Icons.visibility,
-                color: Colors.black,
-              ))
+                  onTap: () => viewModel.onEyeTap(),
+                  child: viewModel.isObscure.value
+                      ? const Icon(
+                          Icons.visibility_off,
+                          color: Colors.black,
+                        )
+                      : const Icon(
+                          Icons.visibility,
+                          color: Colors.black,
+                        ))
               : null,
           labelText: label,
           hintText: hint,
@@ -190,68 +173,5 @@ class _SignupViewState extends State<SignupView> {
         ),
       ),
     );
-  }
-
-  void onEyeTap() {
-    setState(() {
-      isObscure = !isObscure;
-    });
-  }
-
-  String? emailValidator(String? value) {
-    String email = emailController.text.toString();
-    bool isValid = EmailValidator.validate(email);
-
-    if (value == null || value.isEmpty) {
-      return "Email is required";
-    } else if (!isValid) {
-      return "Please Enter Valid Email";
-    }
-
-    return null;
-  }
-
-  String? passwordValidator(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Password is required";
-    }
-    if (value.length < 6) {
-      return "Password must be at least 6 characters long";
-    }
-    return null; // Return null if the input is valid
-  }
-
-  onSignUpTap() async {
-    if (formKey.currentState!.validate()) {
-      String email = emailController.text.toString();
-      String password = passwordController.text.toString();
-
-      bool isUserCreated = await authService.signup(email, password);
-      if (isUserCreated) {
-        emailController.clear();
-        passwordController.clear();
-        if (selectedImage != null) {
-          if (await storageService.uploadProfilePic(selectedImage!)) {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => const HomeView(),
-              ),
-            );
-          }
-        } else {
-          storageService.uploadProfilePic(defaultProfilePicFile);
-        }
-
-        // navigation
-      }
-    }
-  }
-
-  onGoogleTap() {}
-
-  onImageClick() async {
-    Functions functions = Functions();
-    selectedImage = await functions.pickImage();
-    setState(() {});
   }
 }

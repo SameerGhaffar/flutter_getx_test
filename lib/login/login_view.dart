@@ -1,10 +1,10 @@
-
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_getx_test/home/home_view.dart';
 import 'package:flutter_getx_test/services/auth_service.dart';
 import 'package:flutter_getx_test/signup/signup_view.dart';
+import 'package:get/get.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -35,96 +35,87 @@ class _LoginViewState extends State<LoginView> {
         title: const Text('Login'),
         centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            child: Form(
-                key: formKey,
-                child: SizedBox(
-                  height: 450,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      buildTextField(
-                        emailController,
-                        "Email",
-                        "Enter Email",
-                        validator: (v) => emailValidator(v),
-                      ),
-                      buildTextField(
-                        passwordController,
-                        "Password",
-                        "Enter Password",
-                        isPassword: true,
-                      ),
-                      ElevatedButton(
-                        onPressed: () => onLoginTap(),
-                        child: const Text('Login'),
-                      ),
-                      RichText(
-                          text: TextSpan(children: [
-                            const TextSpan(
-                                text: 'Need an Account ? ',
-                                style: TextStyle(color: Colors.black)),
-                            TextSpan(
-                                text: ' SignUp Now ',
-                                style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontWeight: FontWeight.bold),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.of(context).pushAndRemoveUntil(
-                                        MaterialPageRoute(
-                                          builder: (context) => const SignupView(),
-                                        ),
-                                            (route) => false);
-                                  }),
-                          ])),
-
-
-
-                    ],
-                  ),
-                )),
-          )
-        ],
+      body: Form(
+        key: formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            buildTextField(
+              emailController,
+              "Email",
+              "Enter Email",
+              validator: (v) => emailValidator(v),
+            ),
+            buildTextField(
+              passwordController,
+              "Password",
+              "Enter Password",
+              isPassword: true,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 50, bottom: 10),
+              child: ElevatedButton(
+                onPressed: () => onLoginTap(),
+                child: const Text('Login'),
+              ),
+            ),
+            RichText(
+                text: TextSpan(children: [
+              const TextSpan(
+                  text: 'Need an Account ? ',
+                  style: TextStyle(color: Colors.black)),
+              TextSpan(
+                  text: ' SignUp Now ',
+                  style: const TextStyle(
+                      color: Colors.blue, fontWeight: FontWeight.bold),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () {
+                      Get.to(const SignupView());
+                    }),
+            ])),
+          ],
+        ),
       ),
     );
   }
 
-  TextFormField buildTextField(TextEditingController emailController, String label, String hint, {bool isPassword = false, String? Function(String?)? validator}) {
-    return TextFormField(
-      validator: validator,
-      keyboardType: isPassword ? TextInputType.emailAddress : null,
-      controller: emailController,
-      obscureText: isPassword ? isObscure : false,
-      decoration: InputDecoration(
-        suffixIcon: isPassword
-            ? GestureDetector(
-            onTap: () => onEyeTap(),
-            child: isObscure
-                ? Icon(
-              Icons.visibility_off,
+  Widget buildTextField(
+      TextEditingController emailController, String label, String hint,
+      {bool isPassword = false, String? Function(String?)? validator}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+      child: TextFormField(
+        validator: validator,
+        keyboardType: isPassword ? TextInputType.emailAddress : null,
+        controller: emailController,
+        obscureText: isPassword ? isObscure : false,
+        decoration: InputDecoration(
+          suffixIcon: isPassword
+              ? GestureDetector(
+                  onTap: () => onEyeTap(),
+                  child: isObscure
+                      ? const Icon(
+                          Icons.visibility_off,
+                          color: Colors.black,
+                        )
+                      : const Icon(
+                          Icons.visibility,
+                          color: Colors.black,
+                        ))
+              : null,
+          labelText: label,
+          hintText: hint,
+          labelStyle: const TextStyle(color: Colors.black),
+          hintStyle: TextStyle(color: Colors.black.withOpacity(0.3)),
+          border: InputBorder.none,
+          fillColor: Colors.black12,
+          filled: true,
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(
               color: Colors.black,
-            )
-                : Icon(
-              Icons.visibility,
-              color: Colors.black,
-            ))
-            : null,
-        labelText: label,
-        hintText: hint,
-        labelStyle: const TextStyle(color: Colors.black),
-        hintStyle: TextStyle(color: Colors.black.withOpacity(0.3)),
-        border: InputBorder.none,
-        fillColor: Colors.black12,
-        filled: true,
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(
-            color: Colors.black,
-            width: 2,
+              width: 2,
+            ),
           ),
         ),
       ),
@@ -148,16 +139,15 @@ class _LoginViewState extends State<LoginView> {
         passwordController.clear();
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (context) => HomeView(),
+              builder: (context) => const HomeView(),
             ),
-                (route) => false);
+            (route) => false);
         print('User Logined');
       } else {
         String? error = authService.error;
       }
     }
   }
-
 
   String? emailValidator(String? value) {
     String email = emailController.text.toString();
@@ -171,5 +161,4 @@ class _LoginViewState extends State<LoginView> {
 
     return null;
   }
-
 }

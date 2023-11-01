@@ -12,8 +12,7 @@ class UserModel {
     return {'docId': id, 'imageUrl': imageUrl, 'email': email};
   }
 
-  factory UserModel.fromMap( Map<String, dynamic> map) {
-
+  factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
         id: map['docId'], imageUrl: map["imageUrl"], email: map['email']);
   }

@@ -18,7 +18,7 @@ class StorageService {
           .putFile(image.absolute, SettableMetadata(contentType: metadata));
       final TaskSnapshot downloadUrl = await uploadTask.whenComplete(() {});
       final String url = (await downloadUrl.ref.getDownloadURL());
-      if(await _firebaseService.addImage(url)){
+      if (await _firebaseService.addImage(url)) {
         return true;
       }
       return false;
